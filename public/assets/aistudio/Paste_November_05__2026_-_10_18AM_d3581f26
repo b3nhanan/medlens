@@ -1,0 +1,329 @@
+MedLens
+
+Build a complete, working, demo-ready web app called MedLens. Follow this brief exactly. Where something is ambiguous, choose the simplest option that works. Do not ask me questions. Make the app mobile-first (it must look like a native mobile app on a phone) and fully usable on desktop.
+
+1. APP OVERVIEW
+
+App name: MedLens
+
+One-line description: Scan a medicine package and instantly understand what it is, how to store it, when it expires, and whether it clashes with your other medicines, explained in simple language (English, Tamil, Hindi, Telugu).
+
+Core problem: Medicine packaging and leaflets are full of small print, technical terms and unfamiliar ingredient names. People confuse medicines, miss expiry dates, forget storage rules, and accidentally take two products with the same active ingredient under different brand names (for example Dolo 650 and Combiflam both contain paracetamol).
+
+Target users:
+
+Elderly people managing several prescriptions.
+Caregivers and family members managing medicines for parents and children.
+Students and ordinary people buying over-the-counter medicines.
+
+Positioning (use this wording in the UI and README): MedLens is not another reminder app. It is an intelligent interface between complicated pharmaceutical information and ordinary people.
+
+Core concept shown on the landing page: Scan → Recognise → Understand → Organise → Stay Informed.
+
+NON-NEGOTIABLE SAFETY RULES (enforce in code, prompts and UI):
+
+The AI never invents medical facts. It only explains information from the verified record shown in the app (local curated DB, openFDA, or RxNorm) and always cites the source.
+The AI never gives dosage instructions, diagnoses, treatment recommendations, or prescription changes. Personal medical questions get this reply: “I can’t advise on that. Please ask your pharmacist or doctor.”
+A warning is not a diagnosis. Every interaction or duplicate warning ends with “Please review this with your pharmacist or doctor.”
+When OCR or matching is uncertain, ask the user to confirm. Never guess silently.
+A persistent footer on every page: “MedLens is an information and organisation tool, not a medical decision-maker. It does not replace a pharmacist or doctor.”
+2. FULL FEATURE LIST (priority order)
+P0: Core MVP (must work flawlessly in the demo)
+Smart Medicine Scanner
+Upload or capture a photo of a medicine strip, bottle or box, using <input type="file" accept="image/*" capture="environment">.
+Run OCR in the browser with Tesseract.js, with an animated scanning overlay.
+Parse the OCR text to extract: medicine name, brand, active ingredient(s), strength, form, manufacturer, expiry date, batch number.
+“Try a demo scan” buttons that feed pre-written label text through the same pipeline, so the demo works even with bad lighting or no camera. This is critical.
+Barcode scanning with html5-qrcode. Look up the code in a local barcode map (demo barcodes are in the seed data), with manual fallback.
+Manual name search with fuzzy autocomplete.
+Medicine Information Lookup
+Match against the local curated verified DB (Fuse.js fuzzy match on brand, generic name and ingredients).
+Match on active ingredient plus strength, not just brand name.
+Show a match confidence badge (High / Medium / Low) and a “Verify these details” panel where the user can edit any field.
+Enrich with live openFDA and RxNorm data (see section 6). If either fails, silently fall back to local data.
+Simplified Explanations (“What does this mean?”)
+Plain-language explanation of what the medicine is for, its ingredients, warnings and storage.
+A language switcher: English / தமிழ் / हिन्दी / తెలుగు. Reading level: “Simple” (default) or “Detailed”.
+Uses an LLM when ANTHROPIC_API_KEY is set, otherwise a deterministic fallback built from the local record’s pre-written plain-language fields. The app must never break without a key.
+A medical glossary: tappable terms (Analgesic, Antipyretic, Contraindication, Side effects, Active ingredient, NSAID, PPI, Antihistamine, Antiplatelet…) open a small popover with a plain definition.
+Expiry Detection and Smart Medicine Cabinet
+Extract the expiry date from OCR (formats: EXP 11/2026, Exp. Date: NOV 2026, 11-26, 11/26, 2026-11, EXP: 11.2026). Validate it, and if unreadable show “Expiry not verified, please enter it”.
+Save to a “My Medicine Cabinet” with status chips: 🟢 Valid, 🟠 Expiring soon (≤ 60 days), 🔴 Expired.
+Store batch number, storage requirements and notes.
+A dashboard summary: total medicines, expiring soon, expired, and refrigerated count.
+P1: Judge-impressers (build these next)
+Duplicate Ingredient and Interaction Checker. This is the hero feature.
+Runs over every medicine in the selected profile’s cabinet.
+Detects the same active ingredient under different brands (for example Dolo 650 + Combiflam → paracetamol), the same drug class (two NSAIDs, two PPIs, two antihistamines), and known interactions from a curated table (see section 6).
+Each alert shows severity (Duplicate / Known interaction / Same class), a plain-language explanation, the source, and the line “Please review this with your pharmacist or doctor.”
+Beautiful “ingredient overlap” visual: brand chips linked to a shared ingredient node.
+Explain It To Me mode. A chat panel on every medicine page.
+Suggested question chips: “What does this ingredient do?”, “What does this warning mean?”, “Why does this need refrigeration?”, “What does this medical term mean?”
+Answers use only the verified record as context, with a visible “Source” line.
+Personal-advice questions get the safe refusal described above.
+Medicine Label Error Detection. After scanning, show a checklist: ✅ Name recognised, ⚠️ Strength not identified, ⚠️ Expiry not readable, ⚠️ Packaging text doesn’t match database record. For each ⚠️, ask the user to verify or enter the value.
+Storage Assistant. Per medicine: storage instructions, temperature range, icons for 🧊 refrigerate, ☀️ protect from light, 💧 protect from moisture, and a “Needs refrigeration” flag shown on cabinet cards.
+P2: Nice-to-have (build if time allows, keep each simple)
+Smart Reminders. Create a schedule (Morning / Afternoon / Evening plus custom time), using the Web Notifications API and in-app toasts. Reminder history, a “Taken ✓” / “Skip” action, and a “missed” status if not marked within 30 minutes. A “Notify my caregiver” toggle (simulated: shows a confirmation toast and logs the event). Add the line: “Schedules are entered by you or your healthcare professional. MedLens does not suggest doses.”
+Family Profiles. A profile switcher (Me, Grandma, Dad, Child) with a separate cabinet per profile. No login. Profiles are stored in the DB and selected via a top-bar dropdown.
+Emergency Medicine Card. The user enters allergies, current medicines (auto-filled from the cabinet), doctor’s instructions and an emergency contact. It has a large, high-contrast full-screen view and a Print / Save-as-PDF button (window.print() with print CSS).
+Accessibility toggle. “Large text” and “High contrast” switches in a settings sheet, persisted in localStorage.
+3. TECH STACK (use exactly this)
+Frontend: React 18 + Vite (JavaScript/JSX, not TypeScript), React Router v6, Tailwind CSS v3, framer-motion (animations), lucide-react (icons), fuse.js (fuzzy matching), tesseract.js v5 (browser OCR), html5-qrcode (barcode), date-fns (dates), react-hot-toast (toasts).
+Backend: Node.js 20 + Express, better-sqlite3 (database, file medlens.db), cors, dotenv, node-fetch (or built-in fetch), zod (request validation).
+AI: Anthropic Messages API via plain fetch (POST https://api.anthropic.com/v1/messages), key from env ANTHROPIC_API_KEY, model from env LLM_MODEL (default claude-sonnet-5-5). Optional: if the key is missing, use the deterministic fallback.
+Free external data: openFDA, RxNorm/RxNav, DailyMed (no keys required).
+Dev setup for Replit:
+One project with /client and /server folders and a root package.json.
+Root script "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix client run dev\"".
+Vite dev server on host: 0.0.0.0, port 5000, with server.proxy forwarding /api to http://localhost:3001. Set allowedHosts: true in the Vite config for Replit preview.
+Express on port 3001.
+Configure the Replit run command as npm run dev.
+No authentication, no Firebase, no Docker.
+4. PAGES & USER FLOW
+
+Layout: a mobile app shell with a top bar (logo, profile switcher dropdown, settings gear) and a bottom tab bar with 5 tabs: Home, Scan, Cabinet, Safety Check, Reminders. On desktop (≥1024px) the shell is centered at max-width 480px inside a soft gradient background, with a subtle phone-like frame. The Emergency Card is reachable from Home and Settings. The disclaimer footer appears on every page.
+
+/ Home / Landing Dashboard
+Hero: “Scan. Understand. Stay informed.” with a big primary button “Scan a medicine” and a secondary “Try a demo scan”.
+The 5-step flow strip: Scan → Recognise → Understand → Organise → Stay Informed (animated icons).
+Live summary cards for the selected profile: Total medicines, Expiring soon, Expired, Duplicate alerts (tappable, deep-link to Cabinet/Safety).
+Quick links: Emergency Card, Reminders.
+/scan Scanner
+Three tabs: Photo (OCR), Barcode, Search by name.
+Photo tab: a large dashed drop zone/camera button, the demo-scan chips (3 samples), a preview image with an animated scan line while OCR runs, and a progress bar.
+On completion, navigate to /result carrying the parsed result in router state (also saved in sessionStorage).
+/result Scan Result (“Medicine identified”)
+Header card: medicine name, strength, form, a confidence badge, and the active ingredient chip(s).
+Label Check checklist (feature 7) with inline edit fields.
+“What does it mean?” card with the language switcher and Simple/Detailed toggle (feature 3).
+Storage card with icons (feature 8), Warnings card, and a Sources line with links.
+Expiry card: the detected date and status chip, or an input to enter it manually.
+Primary action: “Add to my cabinet” (a modal for expiry, batch number and notes). Secondary action: “Ask MedLens”, which opens the Explain-It chat drawer.
+/medicine/:id Medicine Detail
+The same content as the result page for a medicine already in the DB or cabinet, plus the Explain-It chat and the glossary popovers.
+/cabinet My Medicine Cabinet
+Filter chips: All / Valid / Expiring soon / Expired / Refrigerated. Search box.
+Medicine cards: name, strength, ingredient chips, expiry chip, storage icons, a duplicate-warning badge, and an overflow menu (Edit, Delete, Set reminder).
+A floating “+” button that goes to /scan.
+/safety Safety Check
+A “Run check” button (auto-runs on load) that shows grouped alerts: Duplicate ingredient, Known interaction, Same class.
+The ingredient-overlap visual (feature 5).
+If there are no issues: “No duplicates or known interactions found among your listed medicines. This is not a guarantee of safety.”
+/reminders Reminders
+Today’s timeline (Morning / Afternoon / Evening) with Taken/Skip buttons, a “Add reminder” modal (pick a cabinet medicine, times, days, caregiver toggle), and a History tab.
+/emergency Emergency Medicine Card
+An editable form plus a “Show full screen” mode and a Print button.
+Settings (bottom sheet from the gear icon)
+Large text, High contrast, Default language, Manage profiles (add/rename/delete), and “Reset demo data”.
+
+Navigation flow: Home → Scan → Result → (Add to cabinet) → Cabinet → Safety Check → alerts link back to medicine detail. Reminders and Emergency are reachable from Home and the tabs.
+
+5. UI & DESIGN INSTRUCTIONS
+Style: clean, calm, medical-trust aesthetic, modern and friendly. Generous whitespace, rounded-2xl cards, soft shadows, glassy top bar (backdrop-blur), large touch targets (min 48px), large readable text.
+Fonts (Google Fonts): headings “Plus Jakarta Sans” (600/700/800), body “Inter” (400/500/600). For Indian scripts add “Noto Sans Tamil”, “Noto Sans Devanagari”, “Noto Sans Telugu” as fallbacks in the font stack.
+Color palette (define as Tailwind theme colors):
+Primary teal: 
+#0D9488 (hover 
+#0F766E, light 
+#CCFBF1).
+Deep navy for text/headers: 
+#0F172A; slate body text 
+#334155.
+Background: 
+#F0FDFA to 
+#F8FAFC soft gradient.
+Status: green 
+#16A34A (valid), amber 
+#F59E0B (expiring soon), red 
+#DC2626 (expired/high alert), blue 
+#2563EB (info/known interaction), violet 
+#7C3AED (same-class).
+White cards with a 1px 
+#E2E8F0 border.
+Components and animations (framer-motion):
+Page transitions (fade and slide-up, 200ms).
+A scanner viewfinder with corner brackets and an animated teal scan line moving up and down during OCR, plus a shimmer skeleton while loading.
+Confidence badge with an animated ring.
+The Home flow strip animates in sequence (stagger).
+Cabinet cards stagger in on load, with a gentle spring on tap.
+Count-up animation on dashboard numbers.
+The ingredient-overlap visual: brand chips animate in and draw connecting lines to a shared ingredient node (SVG, framer-motion pathLength).
+Bottom sheets and modals slide up. Toasts via react-hot-toast.
+A pulsing red dot on the Safety tab when alerts exist.
+Accessibility: Large-text mode scales the root font size to 125%. High-contrast mode uses a black/white/yellow theme via a CSS class on <html>. Provide aria-labels, visible focus rings, and never use color alone to convey status (always an icon plus text).
+Empty states: friendly illustrations (lucide icons in large soft circles) with a clear call to action.
+Branding: a logo made of a pill/magnifier lucide icon in a teal rounded square plus the “MedLens” wordmark. Tagline: “Making medicine information understandable to everyone.”
+6. DATA & APIS
+6.1 SQLite schema (create on server start; seed if empty)
+sql
+profiles(id INTEGER PK, name TEXT, relation TEXT, avatar_color TEXT, created_at TEXT)
+
+medicines(            -- the local VERIFIED reference DB
+  id TEXT PK, brand_names TEXT(JSON array), generic_name TEXT,
+  ingredients TEXT(JSON array of {name,strength}), strength_label TEXT, form TEXT,
+  category TEXT, drug_class TEXT, manufacturer TEXT,
+  used_for_plain TEXT, how_it_works_plain TEXT,
+  storage_text TEXT, storage_max_temp_c INTEGER, storage_min_temp_c INTEGER,
+  refrigerate INTEGER, protect_light INTEGER, protect_moisture INTEGER,
+  warnings TEXT(JSON array), do_not_use_if TEXT(JSON array), ask_pharmacist_if TEXT(JSON array),
+  barcode TEXT, source_name TEXT, source_url TEXT)
+
+cabinet_items(
+  id INTEGER PK, profile_id INTEGER, medicine_id TEXT, display_name TEXT,
+  expiry_date TEXT(YYYY-MM-DD, nullable), expiry_verified INTEGER, batch_number TEXT,
+  notes TEXT, added_at TEXT)
+
+reminders(
+  id INTEGER PK, profile_id INTEGER, cabinet_item_id INTEGER, label TEXT,
+  times TEXT(JSON array of "HH:MM"), days TEXT(JSON array 0-6), notify_caregiver INTEGER, active INTEGER)
+
+reminder_log(
+  id INTEGER PK, reminder_id INTEGER, scheduled_for TEXT, status TEXT('taken'|'skipped'|'missed'|'pending'), logged_at TEXT)
+
+emergency_cards(
+  profile_id INTEGER PK, allergies TEXT, doctor_instructions TEXT,
+  contact_name TEXT, contact_phone TEXT, updated_at TEXT)
+
+interactions(
+  id INTEGER PK, ingredient_a TEXT, ingredient_b TEXT, type TEXT('known'|'same_class'),
+  severity TEXT('moderate'|'high'|'info'), plain_explanation TEXT, source TEXT)
+6.2 Seed: verified local medicines (create all 17; ingredient names lowercase)
+
+Fill every field from the table. For each, write used_for_plain, how_it_works_plain, warnings, do_not_use_if and ask_pharmacist_if in simple, accurate, conservative language. All must be generic label-style safety statements, with no doses beyond “follow the label or your doctor’s instructions”. Set source_name to “DailyMed / openFDA (demo-curated)” and source_url to https://dailymed.nlm.nih.gov/dailymed/search.cfm?labeltype=all&query=<generic_name>.
+
+id	Brand(s)	Ingredient(s) + strength	Form	Category / class	Manufacturer	Storage	Demo barcode
+dolo-650	Dolo 650	paracetamol 650 mg	Tablet	Analgesic & antipyretic / analgesic-antipyretic	Micro Labs	Below 30°C, protect from light & moisture	8901234500011
+crocin-500	Crocin	paracetamol 500 mg	Tablet	Analgesic & antipyretic / analgesic-antipyretic	GSK	Below 30°C, dry place	8901234500028
+calpol-500	Calpol 500	paracetamol 500 mg	Tablet	Analgesic & antipyretic / analgesic-antipyretic	GSK	Below 30°C, dry place	8901234500035
+combiflam	Combiflam	ibuprofen 400 mg + paracetamol 325 mg	Tablet	Pain reliever (NSAID + analgesic) / nsaid	Sanofi	Below 25°C, protect from light	8901234500042
+brufen-400	Brufen 400	ibuprofen 400 mg	Tablet	NSAID pain & inflammation reliever / nsaid	Abbott	Below 30°C, dry place	8901234500059
+voveran-50	Voveran 50	diclofenac 50 mg	Tablet	NSAID pain & inflammation reliever / nsaid	Novartis	Below 25°C, protect from moisture	8901234500066
+ecosprin-75	Ecosprin 75	aspirin 75 mg	Gastro-resistant tablet	Antiplatelet (blood thinner) / antiplatelet	USV	Below 30°C, dry place	8901234500073
+clopilet-75	Clopilet 75	clopidogrel 75 mg	Tablet	Antiplatelet / antiplatelet	Sun Pharma	Below 30°C, dry place	8901234500080
+allegra-120	Allegra 120	fexofenadine 120 mg	Tablet	Antihistamine (allergy) / antihistamine	Sanofi	Below 25°C, protect from moisture	8901234500097
+cetzine-10	Cetzine	cetirizine 10 mg	Tablet	Antihistamine (allergy) / antihistamine	GSK	Below 30°C, dry place	8901234500103
+pan-40	Pan 40	pantoprazole 40 mg	Gastro-resistant tablet	Acid reducer / ppi	Alkem	Below 25°C, protect from moisture	8901234500110
+omez-20	Omez 20	omeprazole 20 mg	Capsule	Acid reducer / ppi	Dr. Reddy’s	Below 25°C, dry place	8901234500127
+glycomet-500	Glycomet 500	metformin 500 mg	Tablet	Blood-sugar lowering (diabetes) / biguanide	USV	Below 30°C, dry place	8901234500134
+amlong-5	Amlong 5	amlodipine 5 mg	Tablet	Blood-pressure lowering / calcium-channel-blocker	Micro Labs	Below 30°C, protect from light	8901234500141
+telma-40	Telma 40	telmisartan 40 mg	Tablet	Blood-pressure lowering / arb	Glenmark	Below 30°C, protect from moisture	8901234500158
+augmentin-625	Augmentin 625	amoxicillin 500 mg + clavulanic acid 125 mg	Tablet	Antibiotic / penicillin-antibiotic	GSK	Below 25°C, protect from moisture	8901234500165
+lantus-pen	Lantus	insulin glargine 100 units/mL	Pen injection	Long-acting insulin / insulin	Sanofi	Unopened: refrigerate 2–8°C, do not freeze, protect from light. In-use pen: follow label	8901234500172
+
+Mark refrigerate = 1 only for lantus-pen. Set protect_light and protect_moisture from the storage text.
+
+Safety notes to include accurately: paracetamol → “do not take more than the label or doctor advises; many cold/flu/pain products also contain paracetamol; take care with liver disease or regular alcohol use”. NSAIDs → “can irritate the stomach; use caution with stomach ulcers, kidney problems, heart disease; avoid if allergic to NSAIDs/aspirin”. Aspirin/clopidogrel → “can increase bleeding risk; do not stop unless your doctor says so”. Augmentin → “tell your doctor if allergic to penicillin; finish the course as prescribed”. Insulin → “never share pens; low blood sugar can occur; follow your doctor’s instructions”. Every medicine includes the line: “Read the package leaflet and ask a pharmacist if unsure.”
+
+6.3 Seed: glossary (used for popovers and fallback explanations)
+
+Analgesic = Medicine used to relieve pain. Antipyretic = Medicine used to reduce fever. Contraindication = A situation in which a medicine should not be used. Side effects = Unwanted effects that may occur. Active ingredient = The substance responsible for the medicine’s intended action. NSAID = A pain and inflammation reliever that can irritate the stomach. PPI = A medicine that reduces stomach acid. Antihistamine = Medicine that eases allergy symptoms. Antiplatelet = Medicine that makes blood less likely to clot. Gastro-resistant = A coating that protects the tablet from stomach acid. Batch number = A code that identifies the production lot of the medicine. Provide each term in English, Tamil, Hindi and Telugu (generate accurate translations).
+
+6.4 Seed: curated interactions (ingredient-level, symmetric)
+ibuprofen + aspirin: known, moderate. Taking them together can raise the risk of stomach bleeding, and ibuprofen may reduce the heart-protective effect of low-dose aspirin.
+ibuprofen + diclofenac: same_class, high. Both are NSAIDs. Taking two together increases the risk of stomach and kidney problems.
+diclofenac + aspirin: known, moderate. Higher chance of bleeding or stomach irritation.
+ibuprofen + telmisartan and diclofenac + telmisartan: known, moderate. NSAIDs may weaken the blood-pressure-lowering effect and can strain the kidneys.
+omeprazole + clopidogrel: known, high. Omeprazole may reduce how well clopidogrel works.
+aspirin + clopidogrel: known, info. Together they raise bleeding risk. Doctors sometimes prescribe them together on purpose, so do not stop either without medical advice.
+pantoprazole + omeprazole: same_class, moderate. Both reduce stomach acid.
+cetirizine + fexofenadine: same_class, moderate. Both are antihistamines, and taking two may cause extra drowsiness or side effects.
+
+Duplicate rule (computed, not stored): if two cabinet items share any identical ingredient name, raise a “Duplicate active ingredient” alert (severity high). The explanation must name both brands and the shared ingredient, for example “Dolo 650 and Combiflam both contain paracetamol, so using both could mean taking more paracetamol than intended.”
+
+6.5 Seed: cabinet demo data (profile “Me”; use dates RELATIVE to today, computed at seed time)
+Dolo 650: expiry today + 14 months (Valid), batch DL2290.
+Combiflam: expiry today + 20 days (Expiring soon), batch CF1187.
+Crocin: expiry today − 25 days (Expired), batch CR0931.
+Pan 40: expiry today + 9 months (Valid), batch PN4410.
+Ecosprin 75: expiry today + 11 months (Valid).
+Lantus pen: expiry today + 6 months (Valid), refrigerated flag.
+
+Also create profiles “Grandma” (with Amlong 5, Telma 40, Glycomet 500, Voveran 50) and “Dad” (empty), plus a seeded emergency card for “Me” (allergy: Penicillin; contact: “Priya (Sister) +91 90000 00000”). Seed two reminders for “Me” and a few reminder_log rows so History isn’t empty.
+
+With this seed, the Safety Check for “Me” must show: a Duplicate alert (Dolo 650 + Combiflam + Crocin: paracetamol), a Known interaction (Combiflam’s ibuprofen + Ecosprin’s aspirin), and the Expired/Expiring cabinet statuses. Verify this works.
+
+6.6 Demo scan label texts (3 buttons on the Scan page; run through the exact same parser as OCR output)
+"Dolo 650\nParacetamol Tablets IP 650 mg\nMfd. by: Micro Labs Ltd\nB.No. DL2290 MFG 12/2025 EXP 01/2028\nStore below 30°C. Protect from light and moisture."
+"COMBIFLAM\nIbuprofen 400 mg + Paracetamol 325 mg Tablets\nSanofi India Ltd\nBatch No: CF1187 Exp. Date: DEC 2026\nStore in a cool dry place below 25°C"
+(deliberately unclear, to demo error detection) "C?oc1n\nParacet... Tabl\nB.No CR09 EXP ??/26" → should result in LOW confidence, the “Medicine name partially recognised” warning, “Strength not identified”, and a prompt to verify.
+6.7 Parsing and matching logic (server POST /api/identify, body { ocrText, barcode? })
+Expiry regex candidates: (EXP(?:IRY)?\.?\s*(?:DATE)?\s*[:\-]?\s*)(\d{1,2}[\/\-\.]\d{2,4}|[A-Z]{3,9}\.?\s*\d{2,4}|\d{4}[\/\-]\d{2}). Normalize to the last day of the month. Reject dates earlier than 2000 or later than 2100. If a MFG date is also present, make sure EXP > MFG. If not, flag as unclear.
+Batch: (B\.?\s*No\.?|Batch(?:\s*No\.?)?)\s*[:\-]?\s*([A-Z0-9\-]{3,}).
+Strength: (\d+(?:\.\d+)?)\s*(mg|mcg|g|ml|iu|units).
+Name match: Fuse.js over brand_names, generic_name, ingredients[].name (threshold 0.4). Then boost or penalize using strength and ingredient agreement: if the strength found in the text matches a record’s strength → +confidence; if the brand matches but the strength conflicts → flag “Packaging information does not match the database record”.
+Confidence: High ≥ 0.8, Medium 0.5–0.8, Low < 0.5. Return the top 3 candidates so the UI can show “Is this your medicine?” chips when confidence isn’t High.
+Barcode: look up medicines.barcode. If found, confidence is High. If not, return an empty result with a manual-search prompt.
+Response shape: { extracted: {name, strength, ingredients[], form, manufacturer, expiry, batch}, candidates: [{medicine, score}], best, confidence, checks: [{key, status:'ok'|'warn', message}] }.
+6.8 External free APIs (all optional enrichment, with 5s timeout, in-memory caching, and graceful fallback to local data)
+
+Create server proxy routes so the browser never calls these directly.
+
+openFDA drug label (by generic name)
+GET https://api.fda.gov/drug/label.json?search=openfda.generic_name:"{generic}"&limit=1
+Use these fields if present: purpose, indications_and_usage, warnings, do_not_use, ask_doctor, ask_doctor_or_pharmacist, stop_use, storage_and_handling, active_ingredient, openfda.brand_name, openfda.manufacturer_name, set_id.
+Note: openFDA uses US generic names (for example acetaminophen for paracetamol, insulin glargine). Add a mapping: paracetamol→acetaminophen, and all others are the same. Show these as “From US FDA label (openFDA)”.
+Route: GET /api/lookup/openfda?generic=paracetamol.
+RxNorm (standardised names)
+GET https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term={name}&maxEntries=3 → take approximateGroup.candidate[0].rxcui.
+GET https://rxnav.nlm.nih.gov/REST/rxcui/{rxcui}/properties.json → standardized name.
+GET https://rxnav.nlm.nih.gov/REST/rxcui/{rxcui}/related.json?tty=IN → ingredient concepts.
+Display “RxNorm ID: {rxcui}” as a small chip on the result page. Route: GET /api/lookup/rxnorm?name=....
+Do not use the RxNav drug-interaction API (retired). Use the curated interactions table.
+DailyMed source link: build the link https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid={set_id} from the openFDA set_id, or fall back to the search URL.
+Add a small note on the result page: “US sources (openFDA, RxNorm) are used for reference. Indian brand records in this demo are curated locally and must be validated against Indian regulatory records before real-world use.”
+6.9 AI endpoints (server)
+POST /api/explain body { medicineId, language: 'en'|'ta'|'hi'|'te', level: 'simple'|'detailed' }
+POST /api/ask body { medicineId, question, language, history[] }
+
+Both build a context block from the local record (plus openFDA text if fetched) and call the LLM with this system prompt (use verbatim):
+
+You are MedLens, a medicine-information explainer. You may ONLY use the VERIFIED RECORD provided below. Rewrite and explain it in simple, kind, plain language at a Grade-6 reading level (or slightly more detail if asked), in the requested language. Keep every warning from the record; never remove or soften warnings. NEVER invent facts, doses, schedules, or advice. NEVER diagnose, recommend a medicine, or tell the user to start/stop/change a medicine or dose. If the question cannot be answered from the record, or is personal medical advice, say: "I can't advise on that from the verified information. Please ask your pharmacist or doctor." Always end explanations with: "Always check the package leaflet and ask your pharmacist if you are unsure." Respond as JSON for /explain with keys: summary, ingredients_explained[], warnings_explained[], storage_explained, safety_note. For /ask respond as plain text of at most 120 words, followed by a line "Source: <source_name>".
+Parse JSON defensively. If the LLM fails, times out (10s), or no key is set, use the deterministic fallback that builds the same JSON shape from the record’s used_for_plain, warnings, storage_text, and the glossary. For non-English languages without an LLM, show the fallback in English plus a small banner “Add an API key to enable full translation”. UI labels and glossary terms should still show in all four languages via a static i18n dictionary (/client/src/i18n.js) covering at least navigation labels, status chips, and section headers.
+For /ask without a key, match the question against the glossary and record fields (keyword rules). If there’s no match, return the safe refusal.
+6.10 REST API summary (implement all)
+GET  /api/health
+GET  /api/profiles                POST /api/profiles        PUT/DELETE /api/profiles/:id
+GET  /api/medicines/search?q=     GET /api/medicines/:id    GET /api/glossary
+POST /api/identify
+GET  /api/lookup/openfda?generic= GET /api/lookup/rxnorm?name=
+POST /api/explain                 POST /api/ask
+GET  /api/cabinet?profileId=      POST /api/cabinet         PUT/DELETE /api/cabinet/:id
+GET  /api/safety-check?profileId=
+GET  /api/reminders?profileId=    POST /api/reminders       PUT/DELETE /api/reminders/:id
+POST /api/reminders/:id/log       GET /api/reminder-log?profileId=
+GET  /api/emergency/:profileId    PUT /api/emergency/:profileId
+POST /api/reset-demo
+
+/api/safety-check returns { alerts: [{type, severity, items:[cabinet_item_ids], ingredients:[...], title, explanation, source}] }.
+
+7. STEP-BY-STEP BUILD INSTRUCTIONS FOR REPLIT AGENT
+
+Do these in order. Run the app and fix errors after each major step before continuing.
+
+Scaffold. Create the monorepo: root package.json (with concurrently), /server (Express app, package.json with express cors dotenv better-sqlite3 zod fuse.js, plus nodemon as a dev dependency) and /client (Vite React app with react-router-dom framer-motion lucide-react fuse.js tesseract.js html5-qrcode date-fns react-hot-toast tailwindcss postcss autoprefixer). Configure Tailwind, the Vite proxy (/api → http://localhost:3001), host: '0.0.0.0', port 5000, and allowedHosts: true. Set npm run dev as the run command. Add the Google Fonts links to index.html.
+Database and seed. In /server/db.js, create all tables from section 6.1. In /server/seed.js, insert the medicines (6.2, written as a medicines.json file with all 17 fully-written records), glossary (6.3, glossary.json with 4 languages), interactions (6.4), profiles, cabinet items with relative dates (6.5), reminders, reminder_log, and the emergency card. Seed only when the tables are empty. Implement POST /api/reset-demo to wipe and reseed.
+Core backend routes. Implement profiles, medicines search, medicine by id, glossary, cabinet CRUD, reminders CRUD and logging, emergency card, and health. Validate inputs with zod. Return JSON errors with proper status codes.
+Identify engine. Implement /server/lib/parser.js (expiry, batch, strength, form, manufacturer extraction per 6.7) and POST /api/identify with Fuse.js matching, confidence scoring, label-check generation, and barcode lookup. Write 6 quick unit-style test calls (a script npm run test:parser) using the 3 demo label texts plus 3 variants, and make sure the 3 demo texts produce the expected outcomes from 6.6.
+Safety engine. Implement GET /api/safety-check: duplicates by shared ingredient, same-class and known interactions via the interactions table (symmetric lookup by ingredient pair and by drug_class pair). Confirm the seeded “Me” profile returns the paracetamol duplicate and the ibuprofen+aspirin interaction.
+External lookups. Implement the openFDA and RxNorm proxy routes (6.8) with a 5-second timeout, a simple in-memory Map cache, the paracetamol→acetaminophen mapping, and graceful {available:false} fallback responses.
+AI layer. Implement /api/explain and /api/ask (6.9) with the verbatim system prompt, the LLM call (when ANTHROPIC_API_KEY exists), defensive JSON parsing, and the full deterministic fallback. Add a .env.example with ANTHROPIC_API_KEY= and LLM_MODEL=claude-sonnet-5-5. Do not hardcode any key. The app must run perfectly with no key.
+Frontend foundation. Build the app shell: design tokens (section 5), the top bar with the profile switcher (React context ProfileContext, persisting the selected profile id in localStorage), the bottom tab bar, the settings sheet (large text, high contrast, language), the disclaimer footer, route definitions for all pages, an API helper module, and the i18n dictionary. Add framer-motion page transitions.
+Home page. Hero, animated 5-step strip, live summary cards from /api/cabinet and /api/safety-check with count-up animation, and the quick links.
+Scan page. Implement the three tabs. Photo tab: file/camera input, image preview with the animated viewfinder and scan line, Tesseract.js OCR (createWorker('eng')) with a progress bar, then POST the text to /api/identify. Add the 3 demo-scan chips that skip OCR and post the sample texts. Barcode tab: html5-qrcode camera scanner plus a manual barcode input (also list the demo barcodes as tappable chips). Search tab: debounced fuzzy search against /api/medicines/search. On success, navigate to /result with the result stored in router state and sessionStorage.
+Result and Medicine Detail pages. Build the header card with the confidence badge, the Label Check checklist with inline editing (editing the name or strength re-calls /api/identify or re-scores locally), the “Is this your medicine?” candidate chips when confidence isn’t High, the explanation card (calls /api/explain; language switcher plus Simple/Detailed; skeleton loader; glossary terms rendered as tappable popovers), the storage card with icons, the warnings card, the expiry card with status chip or manual input, the openFDA/RxNorm enrichment chips with source links, and the “Add to my cabinet” modal (POST /api/cabinet). Reuse the same components for /medicine/:id.
+Explain-It chat drawer. A bottom-sheet chat component with the 4 suggested-question chips, message bubbles, a typing indicator, calls to /api/ask with the language, and a visible “Source” line. Include it on both Result and Detail pages.
+Cabinet page. Filter chips, search, cards with expiry status computed client-side (Expired if date < today; Expiring soon if ≤ 60 days; otherwise Valid; “Not verified” if the date is missing), storage icons, duplicate badge (from /api/safety-check), edit/delete menu, and the floating add button.
+Safety Check page. Fetch alerts, render grouped alert cards with severity styling, the “Please review this with your pharmacist or doctor” line, a link to each medicine, and the animated ingredient-overlap SVG visual for duplicate alerts. Add the pulsing dot on the tab bar when alerts exist.
+Reminders page (P2). The today timeline with Taken/Skip, the add-reminder modal, History tab, in-app toasts, and the Web Notifications API (request permission on first reminder creation). A simple setInterval (30s) checks pending reminders against the current time, fires a notification/toast, and marks as missed anything pending more than 30 minutes. The caregiver toggle shows a simulated toast “Caregiver notified (demo)”.
+Family profiles and Emergency card (P2). Add/rename/delete profiles in the settings sheet. Build the /emergency form with auto-filled current medicines from the cabinet, the full-screen high-contrast view, and print styles.
+Polish pass. Verify the mobile layout at 375px and desktop at 1280px. Add empty states, loading skeletons, and error toasts for every network call. Add the app favicon and <title>MedLens: Understand your medicines</title>. Confirm the safety footer appears everywhere. Confirm that no UI text anywhere suggests doses or diagnoses.
+Final verification checklist (run through and fix all failures):
+Demo scan #1 → Dolo 650 identified (High confidence), expiry Jan 2028 detected, can be added to the cabinet.
+Demo scan #2 → Combiflam identified, expiry Dec 2026 shows as “Expiring soon” or “Expired” depending on today’s date, with the correct status chip.
+Demo scan #3 → Low confidence, label-check warnings shown, user is prompted to verify.
+Safety Check for “Me” shows the paracetamol duplicate and the ibuprofen+aspirin interaction.
+Switching the language to Tamil/Hindi/Telugu changes the UI labels and glossary terms, and the explanation uses the LLM if a key is present, otherwise the fallback with the banner.
+Asking Explain-It “Should I take two tablets?” returns the safe refusal.
+Lantus shows the 🧊 refrigerate flag in the Cabinet and in Storage.
+Everything works with no ANTHROPIC_API_KEY set and with openFDA/RxNorm unreachable.

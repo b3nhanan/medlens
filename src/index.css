@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-heading: 'Plus Jakarta Sans', 'Manrope', system-ui, sans-serif;
+    --font-body: 'Inter', 'Public Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-tamil: 'Noto Sans Tamil', sans-serif;
+    --font-hindi: 'Noto Sans Devanagari', sans-serif;
+    --font-telugu: 'Noto Sans Telugu', sans-serif;
+  }
+
+  html {
+    font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html.large-text {
+    font-size: 125%;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  .font-mono-clinical {
+    font-family: var(--font-mono);
+  }
+}
+
+/* High Contrast Accessibility Mode */
+html.high-contrast {
+  filter: contrast(115%);
+}
+
+html.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast .bg-white,
+html.high-contrast .bg-slate-50,
+html.high-contrast .bg-slate-100 {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border-color: #ffff00 !important;
+}
+
+html.high-contrast .text-slate-900,
+html.high-contrast .text-slate-800,
+html.high-contrast .text-slate-700 {
+  color: #ffffff !important;
+}
+
+html.high-contrast .text-slate-600,
+html.high-contrast .text-slate-500 {
+  color: #ffff00 !important;
+}
+
+html.high-contrast button.bg-teal-600,
+html.high-contrast button.bg-blue-600,
+html.high-contrast button.bg-slate-900 {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  border: 2px solid #ffffff !important;
+}
+
+/* Scanner Laser Animation */
+@keyframes scan-laser {
+  0% {
+    top: 6%;
+    opacity: 0.9;
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+  }
+  100% {
+    top: 6%;
+    opacity: 0.9;
+  }
+}
+
+.animate-scan-laser {
+  animation: scan-laser 2.2s ease-in-out infinite;
+}
+
+/* Print Styles for Emergency Card */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .emergency-card-print {
+    border: 2px solid #000 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 24px !important;
+    max-width: 100% !important;
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "MedLens",
+  "description": "Scan medicine packaging and instantly understand ingredients, storage, expiry dates, and duplicate active ingredients in simple language across English, Tamil, Hindi, and Telugu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,225 @@
+---
+name: Clinical Clarity
+colors:
+  surface: '#f8f9ff'
+  surface-dim: '#cbdbf5'
+  surface-bright: '#f8f9ff'
+  surface-container-lowest: '#ffffff'
+  surface-container-low: '#eff4ff'
+  surface-container: '#e5eeff'
+  surface-container-high: '#dce9ff'
+  surface-container-highest: '#d3e4fe'
+  on-surface: '#0b1c30'
+  on-surface-variant: '#444651'
+  inverse-surface: '#213145'
+  inverse-on-surface: '#eaf1ff'
+  outline: '#757682'
+  outline-variant: '#c5c5d3'
+  surface-tint: '#4059aa'
+  primary: '#00236f'
+  on-primary: '#ffffff'
+  primary-container: '#1e3a8a'
+  on-primary-container: '#90a8ff'
+  inverse-primary: '#b6c4ff'
+  secondary: '#0058be'
+  on-secondary: '#ffffff'
+  secondary-container: '#2170e4'
+  on-secondary-container: '#fefcff'
+  tertiary: '#222a3e'
+  on-tertiary: '#ffffff'
+  tertiary-container: '#384055'
+  on-tertiary-container: '#a4acc5'
+  error: '#ba1a1a'
+  on-error: '#ffffff'
+  error-container: '#ffdad6'
+  on-error-container: '#93000a'
+  primary-fixed: '#dce1ff'
+  primary-fixed-dim: '#b6c4ff'
+  on-primary-fixed: '#00164e'
+  on-primary-fixed-variant: '#264191'
+  secondary-fixed: '#d8e2ff'
+  secondary-fixed-dim: '#adc6ff'
+  on-secondary-fixed: '#001a42'
+  on-secondary-fixed-variant: '#004395'
+  tertiary-fixed: '#dae2fd'
+  tertiary-fixed-dim: '#bec6e0'
+  on-tertiary-fixed: '#131b2e'
+  on-tertiary-fixed-variant: '#3f465c'
+  background: '#f8f9ff'
+  on-background: '#0b1c30'
+  surface-variant: '#d3e4fe'
+typography:
+  display-lg:
+    fontFamily: Manrope
+    fontSize: 40px
+    fontWeight: '700'
+    lineHeight: 48px
+    letterSpacing: -0.02em
+  headline-lg:
+    fontFamily: Manrope
+    fontSize: 32px
+    fontWeight: '700'
+    lineHeight: 40px
+    letterSpacing: -0.015em
+  headline-lg-mobile:
+    fontFamily: Manrope
+    fontSize: 26px
+    fontWeight: '700'
+    lineHeight: 34px
+    letterSpacing: -0.01em
+  headline-md:
+    fontFamily: Manrope
+    fontSize: 24px
+    fontWeight: '600'
+    lineHeight: 32px
+    letterSpacing: -0.01em
+  headline-sm:
+    fontFamily: Manrope
+    fontSize: 20px
+    fontWeight: '600'
+    lineHeight: 28px
+  title-md:
+    fontFamily: Manrope
+    fontSize: 16px
+    fontWeight: '600'
+    lineHeight: 24px
+  body-lg:
+    fontFamily: Public Sans
+    fontSize: 16px
+    fontWeight: '400'
+    lineHeight: 24px
+  body-md:
+    fontFamily: Public Sans
+    fontSize: 14px
+    fontWeight: '400'
+    lineHeight: 20px
+  body-sm:
+    fontFamily: Public Sans
+    fontSize: 12px
+    fontWeight: '400'
+    lineHeight: 18px
+  label-lg:
+    fontFamily: Public Sans
+    fontSize: 14px
+    fontWeight: '600'
+    lineHeight: 20px
+  label-md:
+    fontFamily: Public Sans
+    fontSize: 12px
+    fontWeight: '600'
+    lineHeight: 16px
+    letterSpacing: 0.02em
+  code-clinical:
+    fontFamily: JetBrains Mono
+    fontSize: 13px
+    fontWeight: '500'
+    lineHeight: 18px
+    letterSpacing: -0.01em
+rounded:
+  sm: 0.125rem
+  DEFAULT: 0.25rem
+  md: 0.375rem
+  lg: 0.5rem
+  xl: 0.75rem
+  full: 9999px
+spacing:
+  gutter: 1rem
+  gutter-desktop: 1.5rem
+  margin: 1rem
+  margin-tablet: 1.5rem
+  margin-desktop: 2rem
+  space-xs: 0.25rem
+  space-sm: 0.5rem
+  space-md: 1rem
+  space-lg: 1.5rem
+  space-xl: 2rem
+---
+
+## Brand & Style
+
+This design system establishes an authoritative, precise, and reassuring interface tailored for critical healthcare environments, EHR systems, diagnostic dashboards, and clinical decision support tools. Moving away from standard clinical mints and generic teals, this system uses an uncompromising, deep maritime navy palette to project competence, precision, and institutional trust.
+
+### Design Aesthetic: High-Precision Modern Clinical
+The style blends disciplined minimalism with clinical precision:
+- **Tone:** Authoritative, calm, objective, meticulous, and immediate.
+- **Visual Weight:** Razor-sharp typographic structure, crisp white surfaces, calibrated data density, and surgical focus.
+- **Signal-to-Noise Ratio:** Low visual friction. Color is deliberately restrained and deployed as semantic signaling: navy drives structural workflow and primary agency, while clinical red and amber command diagnostic urgency without visual contamination.
+- **Target Audience:** Clinicians, surgeons, laboratory specialists, and medical operations teams who require maximum legibility under high-cognitive-load conditions.
+
+## Colors
+
+The palette is engineered for high legibility, strict hierarchy, and immediate clinical differentiation.
+
+### Dominant Hierarchy & Color Rules
+- **Primary Navy (`#1E3A8A`):** The operational core. Used for primary call-to-actions, active navigation states, key status badges, barcode/specimen scanner highlights, and primary interactive milestones.
+- **Deep Navy Header & Typography (`#0F172A`):** Anchors headers, persistent structural shell frames, and top-level navigation zones to maintain grounded authority.
+- **Focus & Interaction Blue (`#3B82F6`):** Secondary interactive indicator; deployed for focused input borders, multi-selection toggles, and clinical link states.
+- **Clinical Canvases & Card Foundations:**
+  - Base App Canvas: Ice-tinted clinical slate (`#F0F4F8`).
+  - Card & Table Backgrounds: Pure, luminous white (`#FFFFFF`) with ice slate borders (`#E2E8F0`).
+  - Subtle Section Dividers: Frost Slate (`#F8FAFC`).
+- **Standard Clinical Semantic Status:**
+  - **Critical Alert / Emergency:** Crimson Red (`#DC2626`) for life-critical vitals, allergy flags, contraindications, and emergency stop actions. Surface counterpart: `#FEF2F2`.
+  - **Warning / Action Required:** Clinical Amber (`#D97706`) for pending lab validations, dosage review warnings, and specimen expiration warnings. Surface counterpart: `#FFFBEB`.
+  - **Stable / Verified:** Precision Slate-Teal (`#059669`) strictly for verified patient verification checkmarks and baseline vitals. Surface counterpart: `#ECFDF5`.
+
+## Typography
+
+Typography balances clinical authority and absolute quantitative clarity:
+- **Headlines (Manrope):** Modern, geometric, and authoritative. Used for patient headers, clinical section titles, and macro modal overlays.
+- **Body & Data Text (Public Sans):** A neutral, highly accessible institutional typeface designed for zero ambiguity when reading patient vitals, clinical histories, and prescription notes.
+- **Numeric & Medical Identifiers (JetBrains Mono):** Applied selectively to numerical lab metrics, MRN (Medical Record Numbers), timestamps, dosages, and barcode telemetry to prevent any optical confusion between numbers and glyphs (e.g., 0 vs O, 1 vs I).
+
+## Layout & Spacing
+
+A disciplined 12-column grid anchors desktop views, reflowing to an 8-column layout on tablets and a 4-column layout on handheld triage devices.
+
+### Layout Rules
+- **Desktop (1024px+):** Fixed structural navigation sidebar (Deep Navy `#0F172A`, 260px width) coupled with a fluid clinical canvas. Gutters are fixed at `1.5rem`, section padding set to `2rem`.
+- **Tablet (768px - 1023px):** Collapsible rail navigation (72px width). Dense 8-column layout with `1rem` gutters for intensive chart scanning.
+- **Mobile (< 768px):** Single-column stacked view with high-priority sticky triage headers and `1rem` outer margins.
+- **Information Density:** Spacing utilizes tight `space-xs` and `space-sm` increments inside clinical data tables and diagnostic telemetry feeds, while utilizing `space-lg` to separate discrete diagnostic dossiers and card containers.
+
+## Elevation & Depth
+
+Visual hierarchy relies on structural tonal contrast and restrained ambient shadows rather than heavy physical elevation, ensuring sterile readability under variable medical monitor calibrations.
+
+### Depth Mechanics
+- **Base Canvas:** `#F0F4F8` sets a tinted, anti-glare foundation.
+- **Flat Surface Cards:** Surface-level panels use pure white (`#FFFFFF`) framed with a crisp, low-contrast border (`1px solid #CBD5E1`), devoid of muddy drop shadows.
+- **Level 1 (Hover & Active Modules):** Subtle ambient shadow: `0 2px 4px -1px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.04)`.
+- **Level 2 (Diagnostic Flyouts & Dropdowns):** Defined containment: `0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04)`, bordered by `#94A3B8`.
+- **Level 3 (Emergency Modals & Critical Overlays):** Deep navy backdrop scrim (`rgba(15, 23, 42, 0.6)`) with high-elevation containment: `0 20px 25px -5px rgba(15, 23, 42, 0.15)`.
+
+## Shapes
+
+The design system employs a soft, clinical corner radius (`roundedness: 1`). 
+- Standard inputs, buttons, and clinical badges use `0.25rem` (4px).
+- Clinical cards, chart modules, and diagnostic panels use `0.5rem` (8px).
+- Modals and major telemetry panels use `0.75rem` (12px).
+
+Rounded corners remain tight and disciplined to maintain an instrument-grade aesthetic, avoiding overly playful pill shapes except on select active status indicator tags.
+
+## Components
+
+### Buttons
+- **Primary:** Background `#1E3A8A`, text `#FFFFFF`, border `1px solid #1E3A8A`. Hover state shifts to `#172554`. Focus ring: 2px offset with `#3B82F6`.
+- **Secondary / Outlined:** Background `#FFFFFF`, text `#1E3A8A`, border `1.5px solid #1E3A8A`. Hover shifts to `#F0F4F8`.
+- **Destructive / Urgent:** Background `#DC2626`, text `#FFFFFF`. Reserved solely for irrevocable clinical workflows (e.g., code red alerts, discontinuing medication).
+
+### Badges & Chips
+- **Structural / Clinical State:** `#F0F4F8` background with `#1E3A8A` text and `#CBD5E1` border.
+- **Critical / Allergy Alert:** `#FEF2F2` background, `#991B1B` text, and `#F87171` border with a bold alert glyph.
+- **Pending / Warning:** `#FFFBEB` background, `#92400E` text, and `#FCD34D` border.
+
+### Input Fields & Controls
+- **Inputs:** Clean white background (`#FFFFFF`), text `#0F172A`, placeholder `#64748B`. Inactive border is `1px solid #CBD5E1`. On focus, border deepens to `#1E3A8A` with a 2px semi-transparent ring (`rgba(30, 58, 138, 0.2)`).
+- **Checkboxes & Radios:** Unchecked states feature a crisp `1.5px` border in `#94A3B8`. Checked states fill with `#1E3A8A` exhibiting a sharp white checkmark.
+
+### Cards & Diagnostic Dossiers
+- Pure white background (`#FFFFFF`), with an internal padding of `space-md` or `space-lg`, bordered by `1px solid #E2E8F0`.
+- Card headers feature Deep Navy typography (`#0F172A`) paired with a subtle bottom divider line (`#F1F5F9`).
+
+### Scanner Highlights & Telemetry
+- **Barcode / Specimen Scanner:** Camera viewfinders and active hardware scan boxes use an animated pulsing outline in Deep Navy (`#1E3A8A`) with an ice-blue targeting crosshair (`#3B82F6`).
+- **Telemetry Feeds:** High-contrast numeric values rendered in `code-clinical` font, flanked by compact delta arrows indicating baseline variances.
